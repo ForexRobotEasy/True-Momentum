@@ -1,0 +1,89 @@
+
+// Developer: Forex Robot Easy Team
+// Developer's Site: forexroboteasy.com
+
+// Include necessary libraries
+#include <Trade\Trade.mqh>
+#include <Technical\MovingAverages.mqh>
+
+// Define the True Momentum class
+class TrueMomentum {
+  private:
+    // Define class variables
+    double momentum;
+    double filteredMomentum;
+    double previousMomentum;
+
+    // Define objects for technical indicators
+    CMovingAverages maFilter;
+    CTrade trade;
+
+  public:
+    // Constructor
+    TrueMomentum() {
+      // Initialize class variables
+      momentum = 0.0;
+      filteredMomentum = 0.0;
+      previousMomentum = 0.0;
+
+      // Initialize technical indicators
+      maFilter.Init();
+    }
+
+    // Calculate momentum based on designated parameters and formulas
+    double CalculateMomentum(double[] prices, int period) {
+      // Calculate momentum using formula
+      // Momentum = Current Price - Price 'period' periods ago
+      momentum = prices[0] - prices[period];
+
+      // Return calculated momentum
+      return momentum;
+    }
+
+    // Implement digital filtering techniques to differentiate and filter out noise in the Forex market data
+    double FilterMomentum(double momentum) {
+      // Use Moving Averages to filter momentum
+      filteredMomentum = maFilter.iMA(NULL, 0, 14, 0, MODE_SMA, PRICE_CLOSE, 0) - maFilter.iMA(NULL, 0, 14, 0, MODE_SMA, PRICE_CLOSE, 1);
+
+      // Return filtered momentum
+      return filteredMomentum;
+    }
+
+    // Generate signals based on momentum analysis for buy and sell recommendations
+    void GenerateSignals(double filteredMomentum) {
+      // If filtered momentum is positive, generate a buy signal
+      if (filteredMomentum > 0) {
+        trade.Buy();
+      }
+      // If filtered momentum is negative, generate a sell signal
+      else if (filteredMomentum < 0) {
+        trade.Sell();
+      }
+    }
+
+    // Display momentum oscillations graphically on the True Momentum user interface
+    void DisplayMomentumGraph() {
+      // Implement code to display momentum oscillations graphically on the user interface
+    }
+};
+
+// Main program
+void OnStart() {
+  // Create an instance of the TrueMomentum class
+  TrueMomentum trueMomentum;
+
+  // Define array of prices for testing
+  double[] prices = {1.2345, 1.2350, 1.2340, 1.2360, 1.2370};
+
+  // Calculate momentum
+  double momentum = trueMomentum.CalculateMomentum(prices, 2);
+
+  // Filter momentum
+  double filteredMomentum = trueMomentum.FilterMomentum(momentum);
+
+  // Generate signals
+  trueMomentum.GenerateSignals(filteredMomentum);
+
+  // Display momentum graph
+  trueMomentum.DisplayMomentumGraph();
+}
